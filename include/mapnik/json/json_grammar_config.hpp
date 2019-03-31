@@ -48,7 +48,7 @@ enum well_known_names
     geometries
 };
 
-constexpr char const* wkn_to_string(well_known_names val)
+inline char const*  wkn_to_string(well_known_names val)
 {
     switch(val)
     {

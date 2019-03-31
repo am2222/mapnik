@@ -38,6 +38,16 @@ struct closest_point_result
     double x = 0.0;
     double y = 0.0;
     double distance = -1.0;
+
+
+	static closest_point_result make(double x, double y, double dist)
+	{
+		closest_point_result r;
+		r.x = x;
+		r.y = y;
+		r.distance = dist;
+		return r;
+	}
 };
 
 using result_type = closest_point_result;

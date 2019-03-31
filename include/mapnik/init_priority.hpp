@@ -27,7 +27,7 @@
 #if defined(__GNUC__) || defined(__clang__)
 #define MAPNIK_INIT_PRIORITY(priority) __attribute__((init_priority(priority)))
 #else
-#define MAPNIK_INIT_PRIORITY
+#define MAPNIK_INIT_PRIORITY(x)
 // TODO: anything we can do on windows?
 #endif
 
