@@ -402,6 +402,9 @@ void traverse_tree(svg_parser & parser, rapidxml::xml_node<char> const* node)
         case "symbol"_case:
             parser.ignore_ = true;
             break;
+        case "pattern"_case:
+            parser.ignore_ = true;
+            break;
         }
 
         if (!parser.is_defs_) // FIXME
@@ -497,6 +500,10 @@ void end_element(svg_parser & parser, rapidxml::xml_node<char> const* node)
     {
         parser.ignore_ = false;
     }
+    else if(name == "pattern"_case)
+    {
+        parser.ignore_ = false;
+    }
 }
 
 void parse_element(svg_parser & parser, char const* name, rapidxml::xml_node<char> const* node)
@@ -566,14 +573,14 @@ void parse_stroke(svg_parser& parser, char const* value)
             else
             {
                 std::stringstream ss;
-                ss << "SVG parse error: failed to locate <gradient> stroke with <id> \"" << id << "\"";
+                ss << "SVG parse error: failed to locate stroke with <id> \"" << id << "\"";
                 parser.err_handler().on_error(ss.str());
             }
         }
         else
         {
             std::stringstream ss;
-            ss << "SVG parse error: failed to locate <gradient> stroke with <id> \"" << id << "\"";
+            ss << "SVG parse error: failed to locate stroke with <id> \"" << id << "\"";
             parser.err_handler().on_error(ss.str());
         }
     }
@@ -609,14 +616,14 @@ void parse_fill(svg_parser& parser, char const* value)
             else
             {
                 std::stringstream ss;
-                ss << "SVG parse error: failed to locate <gradient> fill with <id> \"" << id << "\"";
+                ss << "SVG parse error: failed to locate fill with <id> \"" << id << "\"";
                 parser.err_handler().on_error(ss.str());
             }
         }
         else
         {
             std::stringstream ss;
-            ss << "SVG parse error: failed to locate <gradient> fill with <id> \"" << id << "\"";
+            ss << "SVG parse error: failed to locate fill with <id> \"" << id << "\"";
             parser.err_handler().on_error(ss.str());
         }
     }
