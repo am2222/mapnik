@@ -122,6 +122,53 @@ set (MAPNIK_SOURCES
     src/wkb.cpp
     src/xml_tree.cpp
     )
+    
+    
+set(MAPNIK_AGG_SOURCES
+    src/agg/agg_renderer.cpp
+    src/agg/process_building_symbolizer.cpp
+    src/agg/process_debug_symbolizer.cpp
+    src/agg/process_dot_symbolizer.cpp
+    src/agg/process_group_symbolizer.cpp
+    src/agg/process_line_pattern_symbolizer.cpp
+    src/agg/process_line_symbolizer.cpp
+    src/agg/process_markers_symbolizer.cpp
+    src/agg/process_point_symbolizer.cpp
+    src/agg/process_polygon_pattern_symbolizer.cpp
+    src/agg/process_polygon_symbolizer.cpp
+    src/agg/process_raster_symbolizer.cpp
+    src/agg/process_shield_symbolizer.cpp
+    src/agg/process_text_symbolizer.cpp)
+
+
+set(AGG_SOURCES
+    deps/agg/src/agg_arc.cpp
+    deps/agg/src/agg_arrowhead.cpp
+    deps/agg/src/agg_bezier_arc.cpp
+    deps/agg/src/agg_bspline.cpp
+    deps/agg/src/agg_curves.cpp
+    deps/agg/src/agg_embedded_raster_fonts.cpp
+    deps/agg/src/agg_gsv_text.cpp
+    deps/agg/src/agg_image_filters.cpp
+    deps/agg/src/agg_line_aa_basics.cpp
+    deps/agg/src/agg_line_profile_aa.cpp
+    deps/agg/src/agg_pixfmt_rgba.cpp
+    deps/agg/src/agg_rounded_rect.cpp
+    deps/agg/src/agg_sqrt_tables.cpp
+    deps/agg/src/agg_trans_affine.cpp
+    deps/agg/src/agg_trans_double_path.cpp
+    deps/agg/src/agg_trans_single_path.cpp
+    deps/agg/src/agg_trans_warp_magnifier.cpp
+    deps/agg/src/agg_vcgen_bspline.cpp
+    deps/agg/src/agg_vcgen_contour.cpp
+    deps/agg/src/agg_vcgen_dash.cpp
+    deps/agg/src/agg_vcgen_markers_term.cpp
+    deps/agg/src/agg_vcgen_stroke.cpp
+    deps/agg/src/agg_vpgen_clip_polygon.cpp
+    deps/agg/src/agg_vpgen_clip_polyline.cpp
+    deps/agg/src/agg_vpgen_segmentator.cpp )    
+
+    
 set(MAPNIK_INC
     mapnik/adaptive_smooth.hpp
     mapnik/agg_helpers.hpp

@@ -8,7 +8,21 @@ add_executable(mapnik-viewer
     main.cpp
     mainwindow.cpp
     mapwidget.cpp
-    styles_model.cpp)
+    styles_model.cpp
+    
+    forms/about.ui
+    forms/info.ui
+    forms/layer_info.ui    
+    
+    mapnik_viewer.qrc)
 
+set_target_properties(mapnik-viewer PROPERTIES
+    AUTOUIC_SEARCH_PATHS forms
+    AUTORCC ON    
+    AUTOUIC ON
+    AUTOMOC ON)
+    
 add_dependencies(mapnik-viewer mapnik)
-target_link_libraries(mapnik-viewer PRIVATE mapnik)
+target_link_libraries(mapnik-viewer PRIVATE mapnik Qt5::Widgets)
+target_compile_definitions(mapnik-viewer PRIVATE ${IMGFORMAT_DEFS})
+install(TARGETS mapnik-viewer DESTINATION bin)
