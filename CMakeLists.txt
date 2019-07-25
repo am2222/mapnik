@@ -4,11 +4,11 @@ set(CMAKE_CXX_STANDARD 14)
 include(CMakeDependentOption)
 
 
-OPTION(WITH_DEMO   "Build demo" ON)
-OPTION(WITH_VIEWER "Build viewer"  ON)
+option(WITH_DEMO   "Build demo" ON)
+option(WITH_VIEWER "Build viewer"  ON)
 
 
-OPTION(WITH_INPUTS "Build input plugins" ON)
+option(WITH_INPUTS "Build input plugins" ON)
 
 CMAKE_DEPENDENT_OPTION(WITH_INPUT_CSV       "Build the csv input plugin" ON "WITH_INPUTS" OFF)
 CMAKE_DEPENDENT_OPTION(WITH_INPUT_GDAL      "Build the gdal input plugin" ON "WITH_INPUTS" OFF)
@@ -22,6 +22,7 @@ CMAKE_DEPENDENT_OPTION(WITH_INPUT_SHAPE     "Build the shape input plugin" ON "W
 CMAKE_DEPENDENT_OPTION(WITH_INPUT_SQLITE    "Build the sqlite input plugin" ON "WITH_INPUTS" OFF)
 CMAKE_DEPENDENT_OPTION(WITH_INPUT_TOPOJSON  "Build the topojson input plugin" ON "WITH_INPUTS" OFF)
 
+option(WITH_UTILS  "Build the utilities" ON )
 
 option(WITH_GRID "Use the grid renderer" OFF)
 option(WITH_CAIRO "Use cairo" ON)
@@ -42,18 +43,15 @@ find_package(Boost REQUIRED
 
 find_package(FreeType REQUIRED)
 
-#find_package(HarfBuzz REQUIRED)
 find_library(HARFBUZZ_LIB harfbuzz.lib)
-#find_package(icu REQUIRED COMPONENTS uc)
-find_library(ICUU_LIB icuuc.lib)
-find_library(ICUD_LIB icuud.lib)
+find_package(ICU REQUIRED COMPONENTS uc)
 
-find_package(PNG REQUIRED)
-find_package(jpeg REQUIRED)
-find_package(tiff REQUIRED)
-find_package(WebP REQUIRED)
+find_package(PNG     REQUIRED)
+find_package(jpeg    REQUIRED)
+find_package(tiff    REQUIRED)
+find_package(WebP    REQUIRED)
 find_package(LibXml2 REQUIRED)
-find_package(ZLIB REQUIRED)
+find_package(ZLIB    REQUIRED)
 
 set (IMGFORMAT_DEFS 
     -DHAVE_PNG
@@ -61,32 +59,17 @@ set (IMGFORMAT_DEFS
     -DHAVE_TIFF
     -DHAVE_WEBP)
 
-set(thirdparty_include_paths
-    ${FREETYPE_INCLUDE_DIRS}
-    ${ICU_INCLUDE_DIRS}
-    ${PNG_INCLUDE_DIRS}
-    ${JPEG_INCLUDE_DIR}
-    ${TIFF_INCLUDE_DIRS}
-    ${WebP_INCLUDE_DIRS})
-
-set(all_libraries
-    ${FREETYPE_LIBRARY}
-    ${HARFBUZZ_LIB}
-    ${ICUU_LIB}
-    ${JPEG_LIBRARY}
-    ${PNG_LIBRARY}
-    ${TIFF_LIBRARIES}
-    ${WebP_LIBRARY}
-    ${LIBXML2_LIBRARIES}
-    ${ZLIB_LIBRARIES}
-    )
+set(thirdparty_include_paths ${thirdparty_include_paths}
+    ${JPEG_INCLUDE_DIR} ${WEBP_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR})
+    
+set(thirdparty_libraries ${thirdparty_libraries}
+    ${JPEG_LIBRARIES} ${WEBP_LIBRARIES} ${LIBXML2_LIBRARIES} ${HARFBUZZ_LIB})
 
 # AGG
 
 include(files.cmake)
 
 if (WITH_CAIRO)
-    #find_package(Cairo REQUIRED)   -- that just doesn't work.
     find_library(CAIRO_LIB_DEBUG cairod)
     find_library(CAIRO_LIB_RELEASE cairo)
     find_library(CAIRO_GOBJECT_LIB_DEBUG cairo-gobjectd)
@@ -94,7 +77,7 @@ if (WITH_CAIRO)
     find_path(CAIRO_INCLUDE_DIR cairo/cairo.h)
 
     set(thirdparty_include_paths ${thirdparty_include_paths} ${CAIRO_INCLUDE_DIR})
-    set(all_libraries ${all_libraries} $<$<CONFIG:Debug>:${CAIRO_LIB_DEBUG}> $<$<CONFIG:Release>:${CAIRO_LIB_RELEASE}>)
+    set(thirdparty_libraries ${thirdparty_libraries} $<$<CONFIG:Debug>:${CAIRO_LIB_DEBUG}> $<$<CONFIG:Release>:${CAIRO_LIB_RELEASE}>)
     
     set(MAPNIK_SOURCES ${MAPNIK_SOURCES}
         src/cairo/process_markers_symbolizer.cpp
@@ -119,10 +102,7 @@ message(STATUS "Cairo renderer " ${WITH_CAIRO})
 if (WITH_PROJ4)
     find_package(PROJ4 REQUIRED)
     set(thirdparty_include_paths ${thirdparty_include_paths} ${PROJ4_INCLUDE_DIRS})
-    
-    set(all_libraries ${all_libraries}
-        ${PROJ4_LIBRARY_DIRS}/proj.lib # not .obj, you stupid module.
-    )
+    set(thirdparty_libraries ${thirdparty_libraries} ${PROJ4_LIBRARIES})
 
     set(MAPNIK_DEFS ${MAPNIK_DEFS} -DUSE_PROJ4 -DMAPNIK_USE_PROJ4)
 endif()
@@ -189,8 +169,12 @@ target_compile_definitions(mapnik PRIVATE ${MAPNIK_DEFS}  ${IMGFORMAT_DEFS})
 
 target_include_directories(mapnik INTERFACE ${mapnik_include_paths}  ${thirdparty_include_paths})
 target_link_libraries(mapnik PUBLIC
-    ${all_libraries}
-    Boost::boost Boost::filesystem Boost::system Boost::regex Boost::program_options)
+    ${thirdparty_libraries}
+    Boost::boost Boost::filesystem Boost::system Boost::regex Boost::program_options
+    Freetype::Freetype
+    ICU::uc
+    PNG::PNG TIFF::TIFF
+    ZLIB::ZLIB)
 
 install(TARGETS mapnik
     DESTINATION bin
@@ -200,12 +184,14 @@ install(TARGETS mapnik
 add_subdirectory(src/json EXCLUDE_FROM_ALL)
 add_subdirectory(src/wkt EXCLUDE_FROM_ALL)
 
+# ideally we should also generate mapnik-config
+
 if (WITH_INPUT_CSV)
     add_subdirectory(plugins/input/csv)
 endif()
 
 if (WITH_INPUT_GDAL)
-    find_package(GDAL)
+    find_package(GDAL REQUIRED)
     add_subdirectory(plugins/input/gdal)
 endif()
 
@@ -295,4 +281,9 @@ endif()
 if(WITH_VIEWER)
     find_package(Qt5 COMPONENTS Widgets REQUIRED)
     add_subdirectory(demo/viewer)
+endif()
+
+if(WITH_UTILS)
+    add_subdirectory(utils/mapnik-render)
+    add_subdirectory(utils/shapeindex)
 endif()
