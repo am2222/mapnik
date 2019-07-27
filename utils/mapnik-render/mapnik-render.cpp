@@ -117,10 +117,6 @@ int main (int argc,char** argv)
 
         mapnik::datasource_cache::instance().register_datasources("./plugins/input/");
         mapnik::freetype_engine::register_fonts("./fonts",true);
-#ifdef _WIN32
-		// we might just as well import the system fonts?
-        mapnik::freetype_engine::register_fonts(std::string(std::getenv("WINDIR")) + "\\fonts",true);
-#endif
         mapnik::Map map(map_width,map_height);
         mapnik::load_map(map,xml_file,true);
         map.zoom_all();

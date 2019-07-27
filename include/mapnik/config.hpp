@@ -30,8 +30,10 @@
 #  define MAPNIK_IMP __declspec (dllimport)
 #  ifdef MAPNIK_EXPORTS
 #    define MAPNIK_DECL __declspec (dllexport)
-#  else
+#  elif !defined(MAPNIK_STATICLIB)
 #    define MAPNIK_DECL __declspec (dllimport)
+#  else
+#    define MAPNIK_DECL
 #  endif
 #  pragma warning( disable: 4251 )
 #  pragma warning( disable: 4275 )

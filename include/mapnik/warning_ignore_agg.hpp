@@ -20,7 +20,7 @@
  *
  *****************************************************************************/
 
-
+#ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // clang+gcc
 #pragma GCC diagnostic ignored "-Wpragmas" // gcc
 #pragma GCC diagnostic ignored "-Wsign-conversion"
@@ -29,4 +29,4 @@
 #pragma GCC diagnostic ignored "-Wpadded"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #pragma GCC diagnostic ignored "-Wshadow"
-
+#endif

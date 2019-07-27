@@ -24,5 +24,4 @@ set_target_properties(mapnik-viewer PROPERTIES
     
 add_dependencies(mapnik-viewer mapnik)
 target_link_libraries(mapnik-viewer PRIVATE mapnik Qt5::Widgets)
-target_compile_definitions(mapnik-viewer PRIVATE ${IMGFORMAT_DEFS})
 install(TARGETS mapnik-viewer DESTINATION bin)

@@ -14,3 +14,6 @@ add_library(mapnik-json STATIC
     unicode_string_grammar_x3.cpp)
 
 target_link_libraries(mapnik-json INTERFACE ${ICUU_LIB})
+target_compile_definitions(mapnik-json PRIVATE ${MAPNIK_LIB_DEFINITION})
+
+install(TARGETS mapnik-json LIBRARY DESTINATION lib)

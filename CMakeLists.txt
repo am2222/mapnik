@@ -4,6 +4,8 @@ set(CMAKE_CXX_STANDARD 14)
 include(CMakeDependentOption)
 
 
+option(MAPNIK_STATIC_LIB   "Build a static library" OFF)
+
 option(WITH_DEMO   "Build demo" ON)
 option(WITH_VIEWER "Build viewer"  ON)
 
@@ -36,6 +38,7 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W1")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  /wd\"4068\" /wd\"4661\" /wd\"4503\" ")
+  add_compile_options(/MP)
 endif()
 
 find_package(Boost REQUIRED
@@ -53,7 +56,7 @@ find_package(WebP    REQUIRED)
 find_package(LibXml2 REQUIRED)
 find_package(ZLIB    REQUIRED)
 
-set (IMGFORMAT_DEFS 
+set (MAPNIK_DEFS 
     -DHAVE_PNG
     -DHAVE_JPEG
     -DHAVE_TIFF
@@ -95,7 +98,8 @@ if (WITH_CAIRO)
         src/cairo/process_polygon_symbolizer.cpp
         src/cairo/process_raster_symbolizer.cpp
         src/cairo/process_text_symbolizer.cpp)
-    set(IMGFORMAT_DEFS ${IMGFORMAT_DEFS} -DHAVE_CAIRO)
+        
+    set(MAPNIK_DEFS ${MAPNIK_DEFS} -DHAVE_CAIRO)
 endif()
 message(STATUS "Cairo renderer " ${WITH_CAIRO})
 
@@ -104,7 +108,7 @@ if (WITH_PROJ4)
     set(thirdparty_include_paths ${thirdparty_include_paths} ${PROJ4_INCLUDE_DIRS})
     set(thirdparty_libraries ${thirdparty_libraries} ${PROJ4_LIBRARIES})
 
-    set(MAPNIK_DEFS ${MAPNIK_DEFS} -DUSE_PROJ4 -DMAPNIK_USE_PROJ4)
+    set(MAPNIK_DEFS ${MAPNIK_DEFS} -DMAPNIK_USE_PROJ4)
 endif()
 
 if (WITH_GRID)
@@ -145,11 +149,7 @@ set(MAPNIK_SOURCES ${MAPNIK_SOURCES}
     
 #set(MAPNIK_SOURCES ${MAPNIK_SOURCES} src/rapidxml_loader.cpp)
 
-set(MAPNIK_DEFS ${MAPNIK_DEFS}
-
--DHAVE_LIBXML2
-
--DBOOST_REGEX_HAS_ICU)
+set(MAPNIK_DEFS ${MAPNIK_DEFS} -DHAVE_LIBXML2 -DBOOST_REGEX_HAS_ICU)
 
 set(mapnik_include_paths
     include
@@ -159,13 +159,21 @@ set(mapnik_include_paths
     deps/mapbox/polylabel/include
     deps/mapbox/variant/include)
     
-set(MAPNIK_DEFS ${MAPNIK_DEFS} -DMAPNIK_EXPORTS)
 
     
 include_directories(${mapnik_include_paths}  ${thirdparty_include_paths})
-    
-add_library(mapnik SHARED ${MAPNIK_SOURCES} ${MAPNIK_AGG_SOURCES} ${AGG_SOURCES})
-target_compile_definitions(mapnik PRIVATE ${MAPNIK_DEFS}  ${IMGFORMAT_DEFS})
+
+if (MAPNIK_STATIC_LIB)
+    message(STATUS "Building static library")
+    add_library(mapnik STATIC ${MAPNIK_SOURCES} ${MAPNIK_AGG_SOURCES} ${AGG_SOURCES})
+    target_compile_definitions(mapnik PUBLIC  -DMAPNIK_STATICLIB)
+else ()
+    message(STATUS "Building shared library")
+    add_library(mapnik SHARED ${MAPNIK_SOURCES} ${MAPNIK_AGG_SOURCES} ${AGG_SOURCES})
+    target_compile_definitions(mapnik PRIVATE  -DMAPNIK_EXPORTS)
+endif ()
+
+target_compile_definitions(mapnik PUBLIC  ${MAPNIK_DEFS})
 
 target_include_directories(mapnik INTERFACE ${mapnik_include_paths}  ${thirdparty_include_paths})
 target_link_libraries(mapnik PUBLIC
@@ -177,12 +185,11 @@ target_link_libraries(mapnik PUBLIC
     ZLIB::ZLIB)
 
 install(TARGETS mapnik
-    DESTINATION bin
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin)
 
-add_subdirectory(src/json EXCLUDE_FROM_ALL)
-add_subdirectory(src/wkt EXCLUDE_FROM_ALL)
+add_subdirectory(src/json)
+add_subdirectory(src/wkt)
 
 # ideally we should also generate mapnik-config
 
