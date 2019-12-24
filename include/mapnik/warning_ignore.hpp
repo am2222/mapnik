@@ -20,7 +20,7 @@
  *
  *****************************************************************************/
 
-
+#ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // clang+gcc
 #pragma GCC diagnostic ignored "-Wpragmas" // gcc
 #pragma GCC diagnostic ignored "-W#pragma-messages"
@@ -54,3 +54,4 @@
 #pragma GCC diagnostic ignored "-Wmissing-noreturn"
 #pragma GCC diagnostic ignored "-Wcovered-switch-default"
 #pragma GCC diagnostic ignored "-Wfloat-equal"
+#endif

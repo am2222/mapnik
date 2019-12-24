@@ -166,7 +166,7 @@ struct create_multi_polygon
 };
 
 
-auto create_geometry = [] (auto const& ctx)
+static auto create_geometry = [] (auto const& ctx)
 {
     auto const geom_type = std::get<0>(_attr(ctx));
     auto const& coord = std::get<1>(_attr(ctx));
@@ -198,33 +198,33 @@ auto create_geometry = [] (auto const& ctx)
 };
 
 
-auto assign_bbox = [] (auto const& ctx)
+static auto assign_bbox = [] (auto const& ctx)
 {
     _val(ctx).bbox = std::move(_attr(ctx));
 };
 
-auto assign_transform = [] (auto const& ctx)
+static auto assign_transform = [] (auto const& ctx)
 {
     _val(ctx).tr = std::move(_attr(ctx));
 };
 
-auto assign_arcs = [] (auto const& ctx)
+static auto assign_arcs = [] (auto const& ctx)
 {
     _val(ctx).arcs = std::move(_attr(ctx));
 };
 
-auto assign_objects = [] (auto const& ctx)
+static auto assign_objects = [] (auto const& ctx)
 {
     _val(ctx).geometries = std::move(_attr(ctx));
 };
 
 
-auto push_geometry = [] (auto const& ctx)
+static auto push_geometry = [] (auto const& ctx)
 {
     _val(ctx).push_back(std::move(_attr(ctx)));
 };
 
-auto push_collection = [] (auto const& ctx)
+static auto push_collection = [] (auto const& ctx)
 {
     auto & dest = _val(ctx);
     auto & src = _attr(ctx);
@@ -239,32 +239,32 @@ auto push_collection = [] (auto const& ctx)
 };
 
 
-auto assign_geometry_type = [] (auto const& ctx)
+static auto assign_geometry_type = [] (auto const& ctx)
 {
     std::get<0>(_val(ctx)) = _attr(ctx);
 };
 
-auto assign_coordinates = [] (auto const& ctx)
+static auto assign_coordinates = [] (auto const& ctx)
 {
     std::get<1>(_val(ctx)) = std::move(_attr(ctx));
 };
 
-auto assign_rings = [] (auto const& ctx)
+static auto assign_rings = [] (auto const& ctx)
 {
     std::get<2>(_val(ctx)) = std::move(_attr(ctx));
 };
 
-auto assign_properties = [] (auto const& ctx)
+static auto assign_properties = [] (auto const& ctx)
 {
     std::get<3>(_val(ctx)) = std::move(_attr(ctx));
 };
 
-auto assign_prop_name = [] (auto const& ctx)
+static auto assign_prop_name = [] (auto const& ctx)
 {
     std::get<0>(_val(ctx)) = std::move(_attr(ctx));
 };
 
-auto assign_prop_value = [] (auto const& ctx)
+static auto assign_prop_value = [] (auto const& ctx)
 {
     std::get<1>(_val(ctx)) = std::move(_attr(ctx));
 };
@@ -326,7 +326,7 @@ x3::rule<class rings_type, std::vector<std::vector<index_type>>> const rings = "
 x3::rule<class rings_array_type, arcs_type> const rings_array = "Rings Array";
 
 // defs
-auto const topology_def = lit('{') >
+static auto const topology_def = lit('{') >
     -(((lit("\"type\"") > lit(':') > lit("\"Topology\""))
        |
        bbox[assign_bbox]
@@ -340,7 +340,7 @@ auto const topology_def = lit('{') >
       ;
 
 
-auto const transform_def = lit("\"transform\"") > lit(':') > lit('{')
+static auto const transform_def = lit("\"transform\"") > lit(':') > lit('{')
     > lit("\"scale\"") > lit(':')
     > lit('[')
     > double_ > lit(',')
@@ -350,7 +350,7 @@ auto const transform_def = lit("\"transform\"") > lit(':') > lit('{')
     > lit('}')
     ;
 
-auto const  bbox_def = lit("\"bbox\"") > lit(':')
+static auto const  bbox_def = lit("\"bbox\"") > lit(':')
     > lit('[') > double_ > lit(',') > double_
     > lit(',') > double_ > lit(',') > double_
     > lit(']')
@@ -359,7 +359,7 @@ auto const  bbox_def = lit("\"bbox\"") > lit(':')
 
 // A topology must have an “objects” member whose value is an object.
 // This object may have any number of members, whose value must be a geometry object.
-auto const objects_def = lit("\"objects\"") > lit(':')
+static auto const objects_def = lit("\"objects\"") > lit(':')
     > lit('{')
     > -((omit[json_string] > ':' > ( geometry_collection[push_collection]
                                    | geometry[push_geometry]
@@ -367,7 +367,7 @@ auto const objects_def = lit("\"objects\"") > lit(':')
     > lit('}')
     ;
 
-auto const geometry_tuple_def =
+static auto const geometry_tuple_def =
     ((lit("\"type\"") > lit(':') > topojson_geometry_type[assign_geometry_type])
      |
      (lit("\"coordinates\"") > lit(':') > coordinates[assign_coordinates])
@@ -379,9 +379,9 @@ auto const geometry_tuple_def =
      (omit[json_string] > lit(':') > omit[json_value])) % lit(',')
     ;
 
-auto const geometry_def = lit("{") > geometry_tuple[create_geometry] > lit("}");
+static auto const geometry_def = lit("{") > geometry_tuple[create_geometry] > lit("}");
 
-auto const geometry_collection_def = (lit('{') >> lit("\"type\"") >> lit(':') >> lit("\"GeometryCollection\"") >> -omit[lit(',') >> bbox])
+static auto const geometry_collection_def = (lit('{') >> lit("\"type\"") >> lit(':') >> lit("\"GeometryCollection\"") >> -omit[lit(',') >> bbox])
     > lit(',') > lit("\"geometries\"") > lit(':')
     > lit('[')
     > -(geometry[push_geometry] % lit(','))
@@ -390,32 +390,32 @@ auto const geometry_collection_def = (lit('{') >> lit("\"type\"") >> lit(':') >>
     ;
 
 
-auto const ring_def = lit('[') >> (int_ % lit(',')) >> lit(']')
+static auto const ring_def = lit('[') >> (int_ % lit(',')) >> lit(']')
     ;
-auto const rings_def = lit('[') >> (ring % lit(',')) >> lit(']')
+static auto const rings_def = lit('[') >> (ring % lit(',')) >> lit(']')
     ;
-auto const rings_array_def = (lit('[') >> (rings % lit(',')) >> lit(']'))
+static auto const rings_array_def = (lit('[') >> (rings % lit(',')) >> lit(']'))
     |
     rings
     |
     ring
     ;
 
-auto const property_def = json_string[assign_prop_name] > lit(':') > json_value[assign_prop_value]
+static auto const property_def = json_string[assign_prop_name] > lit(':') > json_value[assign_prop_value]
     ;
 
-auto const properties_def = lit("\"properties\"")
+static auto const properties_def = lit("\"properties\"")
     > lit(':')
     > lit('{') > (property % lit(',')) > lit('}')
     ;
 
-auto const arcs_def = lit("\"arcs\"") >> lit(':') >> lit('[') >> -( arc % lit(',')) >> lit(']') ;
+static auto const arcs_def = lit("\"arcs\"") >> lit(':') >> lit('[') >> -( arc % lit(',')) >> lit(']') ;
 
-auto const arc_def = lit('[') >> -(coordinate % lit(',')) >> lit(']') ;
+static auto const arc_def = lit('[') >> -(coordinate % lit(',')) >> lit(']') ;
 
-auto const coordinate_def = lit('[') >> double_ >> lit(',') >> double_ >> omit[*(lit(',') >> double_)] >> lit(']');
+static auto const coordinate_def = lit('[') >> double_ >> lit(',') >> double_ >> omit[*(lit(',') >> double_)] >> lit(']');
 
-auto const coordinates_def = (lit('[') >> coordinate % lit(',') >> lit(']')) | coordinate;
+static auto const coordinates_def = (lit('[') >> coordinate % lit(',') >> lit(']')) | coordinate;
 
 BOOST_SPIRIT_DEFINE(
     topology,
