@@ -38,7 +38,7 @@ extern "C"
 // stl
 #include <fstream>
 #include <memory>
-
+#include <algorithm>
 namespace mapnik
 {
 
