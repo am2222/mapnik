@@ -5,7 +5,8 @@ set (MAPNIK_SOURCES
     src/config_error.cpp
     src/conversions_numeric.cpp
     src/conversions_string.cpp
-    src/css_color_grammar_x3.cpp
+    src/css/css_color_grammar_x3.cpp
+    src/css/css_grammar_x3.cpp
     src/dasharray_parser.cpp
     src/datasource_cache.cpp
     src/datasource_cache_static.cpp
@@ -187,8 +188,11 @@ set(MAPNIK_INC
     mapnik/config.hpp
     mapnik/config_error.hpp
     mapnik/coord.hpp
-    mapnik/css_color_grammar_x3.hpp
-    mapnik/css_color_grammar_x3_def.hpp
+    mapnik/css/css_color_grammar_x3.hpp
+    mapnik/css/css_color_grammar_x3_def.hpp
+    mapnik/css/css_grammar_x3.hpp
+    mapnik/css/css_grammar_x3_def.hpp
+    mapnik/css/css_unit_value.hpp
     mapnik/cxx11_support.hpp
     mapnik/datasource.hpp
     mapnik/datasource_cache.hpp
