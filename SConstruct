@@ -691,7 +691,7 @@ def parse_config(context, config, checks='--libs --cflags'):
                 # and thus breaks knowledge below that gdal worked
                 # TODO - upgrade our scons logic to support Framework linking
                 if env['PLATFORM'] == 'Darwin':
-                    if value and '-framework GDAL' in value:
+                    if value and b'-framework GDAL' in value:
                         env['LIBS'].append('gdal')
                         if os.path.exists('/Library/Frameworks/GDAL.framework/unix/lib'):
                             env['LIBPATH'].insert(0,'/Library/Frameworks/GDAL.framework/unix/lib')
@@ -1423,14 +1423,16 @@ if not preconfigured:
     env.Append(LINKFLAGS = DEFAULT_CXX14_LINKFLAGS)
 
     custom_ldflags = env.ParseFlags(env['CUSTOM_LDFLAGS'])
-    # ParseFlags puts everything it does not recognize into CCFLAGS,
-    # but let's assume the user knows better, put those in LINKFLAGS
-    env.Append(LINKFLAGS = custom_ldflags.pop('CCFLAGS'))
     env.Append(LINKFLAGS = custom_ldflags.pop('LINKFLAGS'),
                LIBS = custom_ldflags.pop('LIBS'))
     env.AppendUnique(FRAMEWORKS = custom_ldflags.pop('FRAMEWORKS'),
                      LIBPATH = custom_ldflags.pop('LIBPATH'),
                      RPATH = custom_ldflags.pop('RPATH'))
+    # ParseFlags puts everything it does not recognize into CCFLAGS,
+    # but let's assume the user knows better: add those to LINKFLAGS.
+    # In order to prevent duplication of flags which ParseFlags puts
+    # into both CCFLAGS and LINKFLAGS, call AppendUnique.
+    env.AppendUnique(LINKFLAGS = custom_ldflags.pop('CCFLAGS'))
 
     invalid_ldflags = {k:v for k,v in custom_ldflags.items() if v}
     if invalid_ldflags:
@@ -1523,6 +1525,21 @@ if not preconfigured:
             if env.get('XML2_LIBS'):
                 lib_path = env['XML2_LIBS']
                 env.AppendUnique(LIBPATH = fix_path(lib_path))
+        elif CHECK_PKG_CONFIG and conf.CheckPKG('libxml-2.0'):
+            # libxml2 2.9.10+ doesn't use xml2-config and uses pkg-config instead
+            cmd = 'pkg-config libxml-2.0 --libs --cflags'
+
+            temp_env = Environment(ENV=os.environ)
+            try:
+                temp_env.ParseConfig(cmd)
+                for inc in temp_env['CPPPATH']:
+                    env.AppendUnique(CPPPATH = fix_path(inc))
+                    env['HAS_LIBXML2'] = True
+                for lib in temp_env['LIBS']:
+                    env.AppendUnique(LIBPATH = fix_path(lib))
+                    env['HAS_LIBXML2'] = True
+            except OSError as e:
+                pass
         elif conf.parse_config('XML2_CONFIG',checks='--cflags'):
             env['HAS_LIBXML2'] = True
         else:

@@ -124,9 +124,9 @@ TEST_CASE("SVG path parser") {
     {
         std::string str = "M600,350 l 50,-25"
             "a25,25 -30 0,1 50,-25 l 50,-25"
-            "a25,50 -30 0,1 50,-25 l 50,-25"
-            "a25,75 -30 0,1 50,-25 l 50,-25"
-            "a25,100 -30 0,1 50,-25 l 50,-25";
+            "a25,50 -30 01 50,-25 l 50,-25"
+            "a25,75 -30 0150,-25 l 50,-25"
+            "a25,100-30 0150-25l50-25";
 
         std::vector<std::tuple<double,double,unsigned>> expected = {
             std::make_tuple(600, 350, 1),
@@ -159,6 +159,35 @@ TEST_CASE("SVG path parser") {
             std::make_tuple(969.382, 96.5057, 4),
             std::make_tuple(1000, 150, 4),
             std::make_tuple(1050, 125, 2)};
+        test_path_parser(str, expected);
+    }
+
+    SECTION("Quadratic Bézier")
+    {
+        std::string str = "M200,300 Q400,50 600,300 T1000,300";
+
+        std::vector<std::tuple<double,double,unsigned>> expected = {
+            std::make_tuple(200,  300, 1),
+            std::make_tuple(400,   50, 3),
+            std::make_tuple(600,  300, 3),
+            std::make_tuple(800,  550, 3),
+            std::make_tuple(1000, 300, 3)};
+        test_path_parser(str, expected);
+    }
+
+    SECTION("Cubic Bézier")
+    {
+        std::string str = "M100,200 C100,100 250,100 250,200S400,300 400,200";
+
+        std::vector<std::tuple<double,double,unsigned>> expected = {
+            std::make_tuple(100, 200, 1),
+            std::make_tuple(100, 100, 4),
+            std::make_tuple(250, 100, 4),
+            std::make_tuple(250, 200, 4),
+            std::make_tuple(250, 300, 4),
+            std::make_tuple(400, 300, 4),
+            std::make_tuple(400, 200, 4)};
+
         test_path_parser(str, expected);
     }
 }
