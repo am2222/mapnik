@@ -32,6 +32,7 @@
 #include <boost/operators.hpp>
 #pragma GCC diagnostic pop
 
+#include <string>
 // agg
 // forward declare so that apps using mapnik do not need agg headers
 namespace agg {
